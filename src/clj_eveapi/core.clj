@@ -5,7 +5,7 @@
   (:require [clj-time.format :as clj-time]))
 
 
-(defn path-args-to-path [& path-args]
+(defn path-args-to-path [path-args]
   (str "/" (apply str (interpose "/" path-args)) ".xml.aspx"))
 
 
@@ -31,7 +31,7 @@
            (reverse (reduce parse-dates [] (:content xml-parsed))))))
 
 
-(defn api-get [query-params host & path-args]
-  (let [path (apply path-args-to-path path-args)
+(defn api-get [path-args query-params host]
+  (let [path (path-args-to-path path-args)
         result (raw-api-get query-params host path)]
     (parse-api-result (:body result))))

@@ -69,7 +69,7 @@
                              :attrs nil,
                              :content [cached]}]}]
     (binding [raw-api-get (fn [& args] {:body test-xml})]
-      (is (= expected (api-get nil nil "account" "Characters"))))))
+      (is (= expected (api-get '(account Characters) nil nil))))))
 
 
 
