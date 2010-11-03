@@ -68,8 +68,6 @@
                             {:tag :cachedUntil,
                              :attrs nil,
                              :content [cached]}]}]
-    (binding [raw-api-get (fn [& args] {:body test-xml})]
-      (is (= expected (api-get '(account Characters) nil nil))))))
-
-
-
+    (testing "no cache"
+      (binding [raw-api-get (fn [& args] {:body test-xml})]
+        (is (= expected (api-get '(account Characters) nil nil)))))))
