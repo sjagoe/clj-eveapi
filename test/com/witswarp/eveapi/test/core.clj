@@ -1,5 +1,5 @@
-(ns clj-eveapi.test.core
-  (:use [clj-eveapi.core] :reload)
+(ns com.witswarp.eveapi.test.core
+  (:use [com.witswarp.eveapi.core] :reload)
   (:use [clojure.test])
   (:require [clj-time.format :as time-fmt]
             [clj-time.core :as time-core]))

@@ -1,4 +1,4 @@
-(ns clj-eveapi.core
+(ns com.witswarp.eveapi.core
   (:import (java.io ByteArrayInputStream))
   (:require [clj-http.client :as http])
   (:require [clojure.xml :as xml])
