@@ -16,7 +16,7 @@
       false)))
 
 
-(defn get-from-cache [db key]
+(defn get-from-cache [key]
   (let [result (cb/retrieve :key key)
         data (:data result)]
     (if (not (expired? data))
@@ -27,7 +27,7 @@
         nil))))
 
 
-(defn store-in-cache! [db key result]
+(defn store-in-cache! [key result]
   (cb/with-txn []
     (cb/make-instance api-item [key result])))
 

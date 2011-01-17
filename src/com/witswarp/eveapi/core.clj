@@ -36,12 +36,12 @@
 (defn api-get
   ([path-args {:keys [userID characterID] :as query-params} host cache-path]
      (let [key (apply str (interpose \/ (conj (seq path-args) characterID userID)))]
-       (cb/with-open-cupboard [db cache-path]
-         (let [cache-result (cache/get-from-cache db key)]
+       (cb/with-open-cupboard [cache-path]
+         (let [cache-result (cache/get-from-cache key)]
            (if (not (nil? cache-result))
              cache-result
              (let [result (api-get path-args query-params host)]
-               (cache/store-in-cache! db key result)
+               (cache/store-in-cache! key result)
                result))))))
   ([path-args query-params host]
      (let [path (path-args-to-path path-args)
