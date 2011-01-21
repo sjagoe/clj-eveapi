@@ -33,17 +33,19 @@
            (reverse (reduce parse-dates [] (:content xml-parsed))))))
 
 
-(defn api-get
-  ([path-args {:keys [userID characterID] :as query-params} host cache-path]
-     (let [key (apply str (interpose \/ (conj (seq path-args) characterID userID)))]
-       (cb/with-open-cupboard [cache-path]
-         (let [cache-result (cache/get-from-cache key)]
-           (if (not (nil? cache-result))
-             cache-result
-             (let [result (api-get path-args query-params host)]
-               (cache/store-in-cache! key result)
-               result))))))
-  ([path-args query-params host]
-     (let [path (path-args-to-path path-args)
-           result (raw-api-get query-params host path)]
-       (parse-api-result (:body result)))))
+(defn make-key [host query-params path-args]
+  (let [account-id [(get query-params :userID) (get query-params :characterID)]
+        identifiers (apply conj (apply conj [host] account-id) path-args)]
+    (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
+
+
+;; TODO: Move caching into other api-get function signature
+(defn api-get [path-args query-params host cache-path]
+  (let [key (make-key host query-params path-args)]
+    (cb/with-open-cupboard [cache-path]
+      (let [cache-result (cache/get-from-cache key)]
+        (if (cache/expired? cache-result) 
+          (let [path (path-args-to-path path-args)
+                result (parse-api-result (:body (raw-api-get query-params host path)))]
+            (cache/store-in-cache! key result))
+          cache-result)))))

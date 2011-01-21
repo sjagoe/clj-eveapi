@@ -16,6 +16,15 @@
     (is (= [expected] (parse-dates [] data)))))
 
 
+(deftest make-key-test
+  (is (= (make-key nil nil '(account Characters)) "/account/Characters"))
+  (is (= (make-key "api.eveonline.com" nil '(account Characters)) "/api.eveonline.com/account/Characters"))
+  (is (= (make-key nil {:userID 1234 :characterID 5678} '(account Characters)) "/1234/5678/account/Characters"))
+  (is (= (make-key "api.eveonline.com" {:userID 1234 :characterID 5679 :apiKey "AbcDef"} '(account Characters)) "/api.eveonline.com/1234/5679/account/Characters"))
+  (is (= (make-key nil {:userID 1234} '(account Characters)) "/1234/account/Characters")))
+
+
+;; TODO: This test does not clean up its data!
 (deftest api-get-test
   (let [current (time-core/date-time 2010 1 2 12 12 10)
         cached (time-core/date-time 2010 1 2 12 12 25)
@@ -70,4 +79,4 @@
                              :content [cached]}]}]
     (testing "no cache"
       (binding [raw-api-get (fn [& args] {:body test-xml})]
-        (is (= expected (api-get '(account Characters) nil nil)))))))
+        (is (= expected (api-get '(account Characters) nil nil "./testdata")))))))
