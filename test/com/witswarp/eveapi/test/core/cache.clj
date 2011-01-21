@@ -28,15 +28,26 @@
       (.mkdir cache-path)
       (cb/with-open-cupboard [(.toString cache-path)]
         (store-in-cache! "key" data)
-        (is (= data (get-from-cache "key")))
-        (cb/retrieve :key "key" :callback cb/delete))))
+        (let [retrieved (get-from-cache "key")]
+          (try
+            (do
+              (is (.isEqual (first (:content (first (:content retrieved)))) now))
+              (is (= (:tag (first (:content retrieved))) :cachedUntil)))
+            (finally (delete-from-cache! "key")))))))
   (testing "expired"
     (let [cache-path (File. "./testdata")
-          now (time-core/minus (time-core/now) (time-core/minutes 5))
+          now (time-core/now)
+          before-now (time-core/minus now (time-core/minutes 5))
           data {:content [{:tag :cachedUntil
-                           :content [now]}]}]
+                           :content [before-now]}]}]
       (.mkdir cache-path)
       (cb/with-open-cupboard [(.toString cache-path)]
         (store-in-cache! "key" data)
-        (is (= nil (get-from-cache "key")))
-        (cb/retrieve :key "key" :callback cb/delete)))))
+        ;; TODO: Catch exceptions and clean up DB afterwards
+        (let [retrieved (get-from-cache "key")]
+          (try
+            (do
+              (is (.isEqual (first (:content (first (:content retrieved)))) before-now))
+              (is (.isBefore (first (:content (first (:content retrieved)))) now))
+              (is (= (:tag (first (:content retrieved))) :cachedUntil)))
+            (finally (delete-from-cache! "key"))))))))

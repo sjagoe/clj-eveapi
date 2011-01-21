@@ -17,14 +17,13 @@
 
 
 (defn get-from-cache [key]
-  (let [result (cb/retrieve :key key)
-        data (:data result)]
-    (if (not (expired? data))
-      data
-      (do
-        (cb/with-txn []
-          (cb/delete result))
-        nil))))
+  (let [result (cb/retrieve :key key)]
+    (:data result)))
+
+
+(defn delete-from-cache! [key]
+  (cb/with-txn []
+    (cb/delete (cb/retrieve :key key))))
 
 
 (defn store-in-cache! [key result]
