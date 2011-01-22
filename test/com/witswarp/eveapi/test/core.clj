@@ -4,7 +4,6 @@
   (:require [clj-time.format :as time-fmt]
             [clj-time.core :as time-core]))
 
-
 (deftest parse-dates-test
   (let [current (time-core/date-time 2010 1 2 12 12 10)
         data {:tag :currentTime,
@@ -15,14 +14,12 @@
                   :content [current]}]
     (is (= [expected] (parse-dates [] data)))))
 
-
 (deftest make-key-test
   (is (= (make-key nil nil '(account Characters)) "/account/Characters"))
   (is (= (make-key "api.eveonline.com" nil '(account Characters)) "/api.eveonline.com/account/Characters"))
   (is (= (make-key nil {:userID 1234 :characterID 5678} '(account Characters)) "/1234/5678/account/Characters"))
   (is (= (make-key "api.eveonline.com" {:userID 1234 :characterID 5679 :apiKey "AbcDef"} '(account Characters)) "/api.eveonline.com/1234/5679/account/Characters"))
   (is (= (make-key nil {:userID 1234} '(account Characters)) "/1234/account/Characters")))
-
 
 ;; TODO: This test does not clean up its data!
 (deftest api-get-test

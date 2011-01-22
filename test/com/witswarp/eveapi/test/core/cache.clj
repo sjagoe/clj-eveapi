@@ -5,7 +5,6 @@
             [cupboard.core :as cb])
   (:import [java.io File]))
 
-
 (deftest expired?-test 
   (testing "not expired"
     (let [now (time-core/plus (time-core/now) (time-core/minutes 5))
@@ -17,7 +16,6 @@
           data {:content [{:tag :cachedUntil
                            :content [now]}]}]
       (is (= true (#'expired? data))))))
-
 
 (deftest cache-test
   (testing "not expired"
