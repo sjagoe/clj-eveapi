@@ -3,7 +3,6 @@
   (:require [clj-http.client :as http]
             [clojure.xml :as xml]
             [clj-time.format :as time-fmt]
-            [cupboard.core :as cb]
             [com.witswarp.eveapi.core.cache :as cache]))
 
 (defn path-args-to-path [path-args]
@@ -32,12 +31,11 @@
         identifiers (apply conj (apply conj [host] account-id) path-args)]
     (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
 
-(defn api-get [path-args query-params host cache-path]
+(defn api-get [path-args query-params host]
   (let [key (make-key host query-params path-args)]
-    (cb/with-open-cupboard [cache-path]
-      (let [cache-result (cache/get-from-cache key)]
-        (if (cache/expired? cache-result) 
-          (let [path (path-args-to-path path-args)
-                result (parse-api-result (:body (raw-api-get query-params host path)))]
-            (cache/store-in-cache! key result))
-          cache-result)))))
+    (let [cache-result (cache/get-from-cache key)]
+      (if (cache/expired? cache-result) 
+        (let [path (path-args-to-path path-args)
+              result (parse-api-result (:body (raw-api-get query-params host path)))]
+          (cache/store-in-cache! key result))
+        cache-result))))

@@ -1,4 +1,5 @@
 (ns com.witswarp.eveapi.core.cache
+  (:use [com.witswarp.eveapi.config])
   (:require [cupboard.core :as cb]
             [clj-time.core :as time-core]))
 
@@ -14,13 +15,16 @@
       false)))
 
 (defn get-from-cache [key]
-  (let [result (cb/retrieve :key key)]
-    (:data result)))
+  (cb/with-open-cupboard [*cache-path*]
+    (let [result (cb/retrieve :key key)]
+      (:data result))))
 
 (defn delete-from-cache! [key]
-  (cb/with-txn []
-    (cb/delete (cb/retrieve :key key))))
+  (cb/with-open-cupboard [*cache-path*]
+    (cb/with-txn []
+      (cb/delete (cb/retrieve :key key)))))
 
 (defn store-in-cache! [key result]
-  (cb/with-txn []
-    (cb/make-instance api-item [key result])))
+  (cb/with-open-cupboard [*cache-path*]
+    (cb/with-txn []
+      (cb/make-instance api-item [key result]))))
