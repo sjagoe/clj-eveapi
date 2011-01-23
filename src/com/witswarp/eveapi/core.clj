@@ -31,11 +31,11 @@
         identifiers (apply conj (apply conj [host] account-id) path-args)]
     (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
 
-(defn api-get [path-args query-params host]
+(defn api-get [path-args query-params host cache-path]
   (let [key (make-key host query-params path-args)]
-    (let [cache-result (cache/get-from-cache key)]
+    (let [cache-result (cache/get-from-cache cache-path key)]
       (if (cache/expired? cache-result) 
         (let [path (path-args-to-path path-args)
               result (parse-api-result (:body (raw-api-get query-params host path)))]
-          (cache/store-in-cache! key result))
+          (cache/store-in-cache! cache-path key result))
         cache-result))))

@@ -2,10 +2,18 @@
   (:use [com.witswarp.eveapi.core] :reload)
   (:use [com.witswarp.eveapi.config] :reload)
   (:use [clojure.test])
-  (:require [clj-time.format :as time-fmt]
+  (:require [com.witswarp.eveapi.core.cache :as cache]
+            [clj-time.format :as time-fmt]
             [clj-time.core :as time-core]))
 
 (def test-cache-path "./testdata")
+
+(defn database-fixture [f]
+  (cache/init-cache! test-cache-path)
+  (f)
+  (cache/clear-cache! test-cache-path))
+
+(use-fixtures :each database-fixture)
 
 (deftest parse-dates-test
   (let [current (time-core/date-time 2010 1 2 12 12 10)
@@ -26,10 +34,9 @@
 
 ;; TODO: This test does not clean up its data!
 (deftest api-get-test
-  (binding [*cache-path* test-cache-path]
-    (let [current (time-core/date-time 2010 1 2 12 12 10)
-          cached (time-core/date-time 2010 1 2 12 12 25)
-          test-xml "
+  (let [current (time-core/date-time 2010 1 2 12 12 10)
+        cached (time-core/date-time 2010 1 2 12 12 25)
+        test-xml "
 <?xml version='1.0' encoding='UTF-8'?>
 <eveapi version=\"1\">
   <currentTime>2010-01-02 12:12:10</currentTime>
@@ -46,38 +53,38 @@
   <cachedUntil>2010-01-02 12:12:25</cachedUntil>
 </eveapi>
 "
-          expected {:tag :eveapi,
-                    :attrs {:version "1"},
-                    :content [{:tag :currentTime,
-                               :attrs nil,
-                               :content [current]}
-                              {:tag :result,
-                               :attrs nil,
-                               :content [{:tag :rowset,
-                                          :attrs {:name "characters",
-                                                  :key "characterID",
-                                                  :columns "name,characterID,corporationName,corporationID"},
-                                          :content [{:tag :row,
-                                                     :attrs {:name "Mary",
-                                                             :characterID "150267069",
-                                                             :corporationName "Starbase Anchoring Corp",
-                                                             :corporationID "150279367"},
-                                                     :content nil}
-                                                    {:tag :row,
-                                                     :attrs {:name "Marcus",
-                                                             :characterID "150302299",
-                                                             :corporationName "Marcus Corp",
-                                                             :corporationID "150333466"},
-                                                     :content nil}
-                                                    {:tag :row,
-                                                     :attrs {:name "Dieinafire",
-                                                             :characterID "150340823",
-                                                             :corporationName "Center for Advanced Studies",
-                                                             :corporationID "1000169"},
-                                                     :content nil}]}]}
-                              {:tag :cachedUntil,
-                               :attrs nil,
-                               :content [cached]}]}]
-      (testing "no cache"
-        (binding [raw-api-get (fn [& args] {:body test-xml})]
-          (is (= expected (api-get '(account Characters) nil nil))))))))
+        expected {:tag :eveapi,
+                  :attrs {:version "1"},
+                  :content [{:tag :currentTime,
+                             :attrs nil,
+                             :content [current]}
+                            {:tag :result,
+                             :attrs nil,
+                             :content [{:tag :rowset,
+                                        :attrs {:name "characters",
+                                                :key "characterID",
+                                                :columns "name,characterID,corporationName,corporationID"},
+                                        :content [{:tag :row,
+                                                   :attrs {:name "Mary",
+                                                           :characterID "150267069",
+                                                           :corporationName "Starbase Anchoring Corp",
+                                                           :corporationID "150279367"},
+                                                   :content nil}
+                                                  {:tag :row,
+                                                   :attrs {:name "Marcus",
+                                                           :characterID "150302299",
+                                                           :corporationName "Marcus Corp",
+                                                           :corporationID "150333466"},
+                                                   :content nil}
+                                                  {:tag :row,
+                                                   :attrs {:name "Dieinafire",
+                                                           :characterID "150340823",
+                                                           :corporationName "Center for Advanced Studies",
+                                                           :corporationID "1000169"},
+                                                   :content nil}]}]}
+                            {:tag :cachedUntil,
+                             :attrs nil,
+                             :content [cached]}]}]
+    (testing "no cache"
+      (binding [raw-api-get (fn [& args] {:body test-xml})]
+        (is (= expected (api-get '(account Characters) nil nil test-cache-path)))))))
