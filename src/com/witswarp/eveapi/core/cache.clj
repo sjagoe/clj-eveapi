@@ -9,16 +9,19 @@
    (:data)))
 
 (defn expired? [data]
-  (let [cached-until (first (filter #(= :cachedUntil (:tag %))
-                                    (:content data)))]
-    (if (time-core/after? (time-core/now) (first (:content cached-until)))
-      true
-      false)))
+  (if (nil? data)
+    true
+    (let [cached-until (first (filter #(= :cachedUntil (:tag %))
+                                      (:content data)))]
+      (if (time-core/after? (time-core/now) (first (:content cached-until)))
+        true
+        false))))
 
 (defn get-from-cache [cache-path key]
   (cb/with-open-cupboard [cache-path]
     (let [result (cb/retrieve :key key)]
-      (:data result))))
+      (if (not (nil? result))
+        (:data result)))))
 
 (defn delete-from-cache! [cache-path key]
   (cb/with-open-cupboard [cache-path]
@@ -28,16 +31,21 @@
 (defn store-in-cache! [cache-path key result]
   (cb/with-open-cupboard [cache-path]
     (cb/with-txn []
-      (cb/make-instance api-item [key result]))))
+      (let [old-result (cb/retrieve :key key)]
+        (if (not (nil? old-result))
+          (cb/delete old-result))
+        (cb/make-instance api-item [key result])))))
 
 (defn init-cache! [cache-path]
   (let [dummy "__DUMMY__"]
     (.mkdir (java-utils/file cache-path))
-    (try
-      (get-from-cache cache-path dummy)
-      (catch java.lang.RuntimeException e
-        (store-in-cache! cache-path dummy {})
-        (delete-from-cache! cache-path dummy)))))
+    (cb/with-open-cupboard [cache-path]
+      (cb/with-txn []
+        (try
+          (cb/retrieve :key dummy)
+          (catch java.lang.RuntimeException e
+            (cb/make-instance api-item [dummy ""])
+            (cb/delete (cb/retrieve :key dummy))))))))
 
 (defn clear-cache! [cache-path]
   (java-utils/delete-file-recursively cache-path))

@@ -22,9 +22,10 @@
       (cons xml-snippet content))))
 
 (defn parse-api-result [result-string]
-  (let [xml-parsed (with-open [bytes (ByteArrayInputStream. (.. result-string trim getBytes))] (xml/parse bytes))]
-    (assoc xml-parsed :content
-           (reverse (reduce parse-dates [] (:content xml-parsed))))))
+  (if (not (nil? result-string))
+    (let [xml-parsed (with-open [bytes (ByteArrayInputStream. (.. result-string trim getBytes))] (xml/parse bytes))]
+      (assoc xml-parsed :content
+             (reverse (reduce parse-dates [] (:content xml-parsed)))))))
 
 (defn make-key [host query-params path-args]
   (let [account-id [(get query-params :userID) (get query-params :characterID)]
@@ -33,9 +34,11 @@
 
 (defn api-get [path-args query-params host cache-path]
   (let [key (make-key host query-params path-args)]
-    (let [cache-result (cache/get-from-cache cache-path key)]
+    (let [raw-cache-result (cache/get-from-cache cache-path key)
+          cache-result (parse-api-result raw-cache-result)]
       (if (cache/expired? cache-result) 
         (let [path (path-args-to-path path-args)
-              result (parse-api-result (:body (raw-api-get query-params host path)))]
-          (cache/store-in-cache! cache-path key result))
+              raw-result (:body (raw-api-get query-params host path))]
+          (cache/store-in-cache! cache-path key raw-result)
+          (parse-api-result raw-result))
         cache-result))))

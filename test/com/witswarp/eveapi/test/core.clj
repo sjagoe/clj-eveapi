@@ -3,7 +3,6 @@
   (:use [com.witswarp.eveapi.config] :reload)
   (:use [clojure.test])
   (:require [com.witswarp.eveapi.core.cache :as cache]
-            [clj-time.format :as time-fmt]
             [clj-time.core :as time-core]))
 
 (def test-cache-path "./testdata")
@@ -86,5 +85,7 @@
                              :attrs nil,
                              :content [cached]}]}]
     (testing "no cache"
-      (binding [raw-api-get (fn [& args] {:body test-xml})]
-        (is (= expected (api-get '(account Characters) nil nil test-cache-path)))))))
+      (binding [raw-api-get (fn [& args] {:body test-xml})
+                time-core/now (fn [] current)]
+        (is (= expected (api-get '(account Characters) nil nil test-cache-path)))
+        (is (= expected (parse-api-result (cache/get-from-cache test-cache-path (make-key nil nil '(account Characters))))))))))
