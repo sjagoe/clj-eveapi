@@ -19,5 +19,4 @@
                  [org.clojure/clojure-contrib "1.2.0"]
                  [cupboard "1.0.0-SNAPSHOT"]
                  [clj-http "0.2.1"]
-                 [clj-time "0.3.1"]
-                 [com.sleepycat/je "4.0.92"]])
+                 [clj-time "0.3.1"]])
