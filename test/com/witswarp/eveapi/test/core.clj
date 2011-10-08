@@ -42,9 +42,9 @@
 (deftest make-key-test
   (is (= (make-key nil nil '(account Characters)) "/account/Characters"))
   (is (= (make-key "api.eveonline.com" nil '(account Characters)) "/api.eveonline.com/account/Characters"))
-  (is (= (make-key nil {:userID 1234 :characterID 5678} '(account Characters)) "/1234/5678/account/Characters"))
-  (is (= (make-key "api.eveonline.com" {:userID 1234 :characterID 5679 :apiKey "AbcDef"} '(account Characters)) "/api.eveonline.com/1234/5679/account/Characters"))
-  (is (= (make-key nil {:userID 1234} '(account Characters)) "/1234/account/Characters")))
+  (is (= (make-key nil {:keyID 1234 :characterID 5678} '(account Characters)) "/1234/5678/account/Characters"))
+  (is (= (make-key "api.eveonline.com" {:keyID 1234 :characterID 5679 :vCode "AbcDef"} '(account Characters)) "/api.eveonline.com/1234/5679/account/Characters"))
+  (is (= (make-key nil {:keyID 1234} '(account Characters)) "/1234/account/Characters")))
 
 ;; TODO: This test does not clean up its data!
 (deftest api-get-test
@@ -102,5 +102,8 @@
     (testing "no cache"
       (binding [raw-api-get (fn [& args] {:body test-xml})
                 time-core/now (fn [] current)]
+        (is (= nil (parse-api-result (cache/get-from-cache test-cache-path
+                                                                (make-key nil nil '(account Characters))))))
         (is (= expected (api-get '(account Characters) nil nil test-cache-path)))
-        (is (= expected (parse-api-result (cache/get-from-cache test-cache-path (make-key nil nil '(account Characters))))))))))
+        (is (= expected (parse-api-result (cache/get-from-cache test-cache-path
+                                                                (make-key nil nil '(account Characters))))))))))

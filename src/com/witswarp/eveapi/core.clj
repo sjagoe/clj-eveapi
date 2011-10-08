@@ -43,7 +43,7 @@
              (reverse (reduce parse-dates [] (:content xml-parsed)))))))
 
 (defn make-key [host query-params path-args]
-  (let [account-id [(get query-params :userID) (get query-params :characterID)]
+  (let [account-id [(get query-params :keyID) (get query-params :characterID)]
         identifiers (apply conj (apply conj [host] account-id) path-args)]
     (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
 
