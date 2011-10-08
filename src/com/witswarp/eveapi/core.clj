@@ -21,22 +21,25 @@
             [com.witswarp.eveapi.core.cache :as cache]))
 
 (defn path-args-to-path [path-args]
+  "Converts api-get EVE-API arguments to an EVE-API path"
   (str "/" (apply str (interpose "/" path-args)) ".xml.aspx"))
 
 (defn raw-api-get [query-params host path]
-  "doc string"
+  "Gets and returns the raw XML response from the EVE-API"
   (let [uri (str host path)]
     (http/post uri {:query-params query-params})))
 
 (def formatter (time-fmt/formatter "yyyy-MM-dd HH:mm:ss"))
 
-(defn parse-dates [content xml-snippet] 
+(defn parse-dates [content xml-snippet]
+  "Parses string dates to clj-time dates"
   (try
     (cons (assoc xml-snippet :content [(time-fmt/parse formatter (first (:content xml-snippet)))]) content)
     (catch Exception _
       (cons xml-snippet content))))
 
 (defn parse-api-result [result-string]
+  "Parses the XML response from the API into Clojure maps"
   (if (not (nil? result-string))
     (let [xml-parsed (with-open [bytes (ByteArrayInputStream. (.. result-string trim getBytes))] (xml/parse bytes))]
       (assoc xml-parsed :content
@@ -48,6 +51,9 @@
     (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
 
 (defn api-get [path-args query-params host cache-path]
+  "Fetches and parses the requested API item. If the requested item is
+in the cache (and the cached item is valid), then it will be returned
+from the cache."
   (let [key (make-key host query-params path-args)]
     (let [raw-cache-result (cache/get-from-cache cache-path key)
           cache-result (parse-api-result raw-cache-result)]

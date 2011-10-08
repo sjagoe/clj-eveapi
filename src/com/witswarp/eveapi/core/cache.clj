@@ -24,6 +24,7 @@
    (:data)))
 
 (defn expired? [data]
+  "Returns true if the provided api-item has expired and should be re-fetched"
   (if (nil? data)
     true
     (let [cached-until (first (filter #(= :cachedUntil (:tag %))
@@ -33,17 +34,20 @@
         false))))
 
 (defn get-from-cache [cache-path key]
+  "Fetches the item with specified key from the cache (or nil if it does not exist)"
   (cb/with-open-cupboard [cache-path]
     (let [result (cb/retrieve :key key)]
       (if (not (nil? result))
         (:data result)))))
 
 (defn delete-from-cache! [cache-path key]
+  "Deletes the specified item from the cache"
   (cb/with-open-cupboard [cache-path]
     (cb/with-txn []
       (cb/delete (cb/retrieve :key key)))))
 
 (defn store-in-cache! [cache-path key result]
+  "Adds the specified item to the cache with the given key"
   (cb/with-open-cupboard [cache-path]
     (cb/with-txn []
       (let [old-result (cb/retrieve :key key)]
@@ -52,6 +56,7 @@
         (cb/make-instance api-item [key result])))))
 
 (defn init-cache! [cache-path]
+  "Creates a cache at the specified path"
   (let [dummy "__DUMMY__"]
     (.mkdir (java-utils/file cache-path))
     (cb/with-open-cupboard [cache-path]
@@ -63,4 +68,5 @@
             (cb/delete (cb/retrieve :key dummy))))))))
 
 (defn clear-cache! [cache-path]
+  "Clears all data from the specified cache"
   (java-utils/delete-file-recursively cache-path))
