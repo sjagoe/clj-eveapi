@@ -1,4 +1,4 @@
-# clj-eveapi
+# evemanager
 
 FIXME: write description
 
@@ -6,12 +6,8 @@ FIXME: write description
 
 FIXME: write
 
-## Installation
-
-FIXME: write
-
 ## License
 
-Copyright (C) 2010 FIXME
+Copyright (C) 2011 Simon Jagoe
 
-Distributed under the Eclipse Public License, the same as Clojure.
+Distributed under version 3 of the GNU General Public License.
