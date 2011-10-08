@@ -33,6 +33,12 @@
         true
         false))))
 
+(defn make-key [host query-params path-args]
+  "Creates a key suitable for storing items in the API cache"
+  (let [account-id [(get query-params :keyID) (get query-params :characterID)]
+        identifiers (apply conj (apply conj [host] account-id) path-args)]
+    (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
+
 (defn get-from-cache [cache-path key]
   "Fetches the item with specified key from the cache (or nil if it does not exist)"
   (cb/with-open-cupboard [cache-path]

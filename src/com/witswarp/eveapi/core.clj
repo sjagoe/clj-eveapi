@@ -45,16 +45,11 @@
       (assoc xml-parsed :content
              (reverse (reduce parse-dates [] (:content xml-parsed)))))))
 
-(defn make-key [host query-params path-args]
-  (let [account-id [(get query-params :keyID) (get query-params :characterID)]
-        identifiers (apply conj (apply conj [host] account-id) path-args)]
-    (apply str \/ (interpose \/ (filter #(not (nil? %)) identifiers)))))
-
 (defn api-get [path-args query-params host cache-path]
   "Fetches and parses the requested API item. If the requested item is
 in the cache (and the cached item is valid), then it will be returned
 from the cache."
-  (let [key (make-key host query-params path-args)]
+  (let [key (cache/make-key host query-params path-args)]
     (let [raw-cache-result (cache/get-from-cache cache-path key)
           cache-result (parse-api-result raw-cache-result)]
       (if (cache/expired? cache-result) 

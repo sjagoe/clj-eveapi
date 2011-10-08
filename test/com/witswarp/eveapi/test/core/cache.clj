@@ -23,6 +23,13 @@
 
 (use-fixtures :each database-fixture)
 
+(deftest make-key-test
+  (is (= (make-key nil nil '(account Characters)) "/account/Characters"))
+  (is (= (make-key "api.eveonline.com" nil '(account Characters)) "/api.eveonline.com/account/Characters"))
+  (is (= (make-key nil {:keyID 1234 :characterID 5678} '(account Characters)) "/1234/5678/account/Characters"))
+  (is (= (make-key "api.eveonline.com" {:keyID 1234 :characterID 5679 :vCode "AbcDef"} '(account Characters)) "/api.eveonline.com/1234/5679/account/Characters"))
+  (is (= (make-key nil {:keyID 1234} '(account Characters)) "/1234/account/Characters")))
+
 (deftest expired?-test
   (testing "not expired"
     (let [now (time-core/plus (time-core/now) (time-core/minutes 5))
