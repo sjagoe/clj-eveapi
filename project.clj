@@ -1,4 +1,4 @@
-;; EVE Manager - Character and corporation management for EVE Online
+;; eveapi - Clojure interface to the EVE API
 ;; Copyright (C) 2011 Simon Jagoe
 
 ;; This program is free software: you can redistribute it and/or
