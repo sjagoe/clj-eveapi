@@ -17,6 +17,8 @@
   (:use [com.witswarp.eveapi.core] :reload)
   (:use [com.witswarp.eveapi.config] :reload)
   (:use [clojure.test])
+  (:use [utilize.testutils :only (do-at)])
+  (:use [conjure.core :only (stubbing)])
   (:require [com.witswarp.eveapi.core.cache :as cache]
             [clj-time.core :as time-core]))
 
@@ -93,10 +95,10 @@
                              :attrs nil,
                              :content [cached]}]}]
     (testing "no cache"
-      (binding [raw-api-get (fn [& args] {:body test-xml})
-                time-core/now (fn [] current)]
-        (is (= nil (parse-api-result (cache/get-from-cache test-cache-path
-                                                                (cache/make-key nil nil '(account Characters))))))
-        (is (= expected (api-get '(account Characters) nil nil test-cache-path)))
-        (is (= expected (parse-api-result (cache/get-from-cache test-cache-path
-                                                                (cache/make-key nil nil '(account Characters))))))))))
+      (stubbing [raw-api-get {:body test-xml}]
+        (do-at current
+               (is (= nil (parse-api-result (cache/get-from-cache test-cache-path
+                                                                  (cache/make-key nil nil '(account Characters))))))
+               (is (= expected (api-get '(account Characters) nil nil test-cache-path)))
+               (is (= expected (parse-api-result (cache/get-from-cache test-cache-path
+                                                                       (cache/make-key nil nil '(account Characters)))))))))))

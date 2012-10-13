@@ -18,4 +18,6 @@
   :dependencies [[org.clojure/clojure "1.5.0-alpha3"]
                  [org.clojars.simonjagoe/cupboard "1.0.0-SNAPSHOT"]
                  [clj-http "0.5.5"]
-                 [clj-time "0.4.4"]])
+                 [clj-time "0.4.4"]]
+  :profiles {:dev {:dependencies [[utilize "0.1.2"]
+                                  [org.clojars.runa/conjure "1.0.2"]]}})
