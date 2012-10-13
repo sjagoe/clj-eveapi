@@ -41,7 +41,8 @@
 (defn parse-api-result [result-string]
   "Parses the XML response from the API into Clojure maps"
   (if (not (nil? result-string))
-    (let [xml-parsed (with-open [bytes (ByteArrayInputStream. (.. result-string trim getBytes))] (xml/parse bytes))]
+    (let [xml-parsed (with-open [bytes (ByteArrayInputStream. (.. result-string trim getBytes))]
+                       (xml/parse bytes))]
       (assoc xml-parsed :content
              (reverse (reduce parse-dates [] (:content xml-parsed)))))))
 

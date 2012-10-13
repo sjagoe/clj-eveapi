@@ -41,25 +41,28 @@
 
 (defn get-from-cache [cache-path key]
   "Fetches the item with specified key from the cache (or nil if it does not exist)"
-  (cb/with-open-cupboard [cache-path]
-    (let [result (cb/retrieve :key key)]
-      (if (not (nil? result))
-        (:data result)))))
+  (if (not (nil? cache-path))
+    (cb/with-open-cupboard [cache-path]
+      (let [result (cb/retrieve :key key)]
+        (if (not (nil? result))
+          (:data result))))))
 
 (defn delete-from-cache! [cache-path key]
   "Deletes the specified item from the cache"
-  (cb/with-open-cupboard [cache-path]
-    (cb/with-txn []
-      (cb/delete (cb/retrieve :key key)))))
+  (if (not (nil? cache-path))
+    (cb/with-open-cupboard [cache-path]
+      (cb/with-txn []
+        (cb/delete (cb/retrieve :key key))))))
 
 (defn store-in-cache! [cache-path key result]
   "Adds the specified item to the cache with the given key"
-  (cb/with-open-cupboard [cache-path]
-    (cb/with-txn []
-      (let [old-result (cb/retrieve :key key)]
-        (if (not (nil? old-result))
-          (cb/delete old-result))
-        (cb/make-instance api-item [key result])))))
+  (if (not (nil? cache-path))
+    (cb/with-open-cupboard [cache-path]
+      (cb/with-txn []
+        (let [old-result (cb/retrieve :key key)]
+          (if (not (nil? old-result))
+            (cb/delete old-result))
+          (cb/make-instance api-item [key result]))))))
 
 (defn init-cache! [cache-path]
   "Creates a cache at the specified path"
