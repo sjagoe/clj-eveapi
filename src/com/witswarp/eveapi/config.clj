@@ -15,4 +15,4 @@
 
 (ns com.witswarp.eveapi.config)
 
-(def ^:dynamic *cache-path* "~/.clj-eveapi/cache")
+(def ^:dynamic *cache-path* nil)
