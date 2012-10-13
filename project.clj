@@ -15,8 +15,7 @@
 
 (defproject clj-eveapi "0.0.1-SNAPSHOT"
   :description "FIXME: write"
-  :dependencies [[org.clojure/clojure "1.2.1"]
-                 [org.clojure/clojure-contrib "1.2.0"]
-                 [cupboard "1.0.0-SNAPSHOT"]
-                 [clj-http "0.2.1"]
-                 [clj-time "0.3.1"]])
+  :dependencies [[org.clojure/clojure "1.5.0-alpha3"]
+                 [org.clojars.simonjagoe/cupboard "1.0.0-SNAPSHOT"]
+                 [clj-http "0.5.5"]
+                 [clj-time "0.4.4"]])

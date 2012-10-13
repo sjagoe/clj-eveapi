@@ -17,7 +17,7 @@
   (:use [com.witswarp.eveapi.config])
   (:require [cupboard.core :as cb]
             [clj-time.core :as time-core]
-            [clojure.contrib.java-utils :as java-utils]))
+            [clojure.java.io :as io]))
 
 (cb/defpersist api-item
   ((:key :index :unique)
@@ -67,7 +67,7 @@
 (defn init-cache! [cache-path]
   "Creates a cache at the specified path"
   (let [dummy "__DUMMY__"]
-    (.mkdir (java-utils/file cache-path))
+    (.mkdir (io/file cache-path))
     (cb/with-open-cupboard [cache-path]
       (cb/with-txn []
         (try
@@ -76,6 +76,16 @@
             (cb/make-instance api-item [dummy ""])
             (cb/delete (cb/retrieve :key dummy))))))))
 
+(defn -delete-file-recursively
+  "Delete file f. If it's a directory, recursively delete all its contents.
+Raise an exception if any deletion fails unless silently is true."
+  [f & [silently]]
+  (let [f (io/file f)]
+    (if (.isDirectory f)
+      (doseq [child (.listFiles f)]
+        (-delete-file-recursively child silently)))
+    (io/delete-file f silently)))
+
 (defn clear-cache! [cache-path]
   "Clears all data from the specified cache"
-  (java-utils/delete-file-recursively cache-path))
+  (-delete-file-recursively cache-path))
