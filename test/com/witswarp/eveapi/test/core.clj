@@ -15,7 +15,6 @@
 
 (ns com.witswarp.eveapi.test.core
   (:use [com.witswarp.eveapi.core] :reload)
-  (:use [com.witswarp.eveapi.config] :reload)
   (:use [clojure.test])
   (:use [utilize.testutils :only (do-at)])
   (:use [conjure.core :only (stubbing)])

@@ -14,7 +14,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns com.witswarp.eveapi.core.cache
-  (:use [com.witswarp.eveapi.config])
   (:require [cupboard.core :as cb]
             [clj-time.core :as time-core]
             [clojure.java.io :as io]))

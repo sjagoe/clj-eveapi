@@ -15,7 +15,6 @@
 
 (ns com.witswarp.eveapi.test.core.cache
   (:use [com.witswarp.eveapi.core.cache] :reload)
-  (:use [com.witswarp.eveapi.config] :reload)
   (:use [com.witswarp.eveapi.test.core :only (test-cache-path database-fixture)] :reload)
   (:use [clojure.test])
   (:require [clj-time.core :as time-core]
